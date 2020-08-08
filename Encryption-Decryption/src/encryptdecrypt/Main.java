@@ -1,16 +1,22 @@
 package encryptdecrypt;
 
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
-        String line = "we found a treasure!";
-        StringBuilder reverseLine = new StringBuilder();
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        int shift = scanner.nextInt();
+        StringBuilder encryptedLine = new StringBuilder();
         for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) > 96 && line.charAt(i) < 123) {
-                reverseLine.append((char) (122 - (line.charAt(i) - 97)));
+            if (Character.isUpperCase(line.charAt(i))) {
+                encryptedLine.append((char) ((line.charAt(i) + shift - 65) % 26 + 65));
+            } else if (Character.isLowerCase(line.charAt(i))) {
+                encryptedLine.append((char) ((line.charAt(i) + shift - 97) % 26 + 97));
             } else {
-                reverseLine.append(line.charAt(i));
+                encryptedLine.append(line.charAt(i));
             }
         }
-        System.out.println(reverseLine.toString());
+        System.out.println(encryptedLine.toString());
     }
 }
