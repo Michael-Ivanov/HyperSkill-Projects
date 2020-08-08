@@ -5,18 +5,21 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        String direction = scanner.nextLine();
         String line = scanner.nextLine();
         int shift = scanner.nextInt();
-        StringBuilder encryptedLine = new StringBuilder();
-        for (int i = 0; i < line.length(); i++) {
-            if (Character.isUpperCase(line.charAt(i))) {
-                encryptedLine.append((char) ((line.charAt(i) + shift - 65) % 26 + 65));
-            } else if (Character.isLowerCase(line.charAt(i))) {
-                encryptedLine.append((char) ((line.charAt(i) + shift - 97) % 26 + 97));
-            } else {
-                encryptedLine.append(line.charAt(i));
+        StringBuilder resultLine = new StringBuilder();
+        if ("enc".equals(direction)) {
+            for (int i = 0; i < line.length(); i++) {
+                resultLine.append((char) (line.charAt(i) + shift));
             }
+        } else if ("dec".equals(direction)) {
+            for (int i = 0; i < line.length(); i++) {
+                resultLine.append((char) (line.charAt(i) - shift));
+            }
+        } else {
+            throw new IllegalArgumentException("Incorrect target operation. Should be \"enc\" or \"dec\".");
         }
-        System.out.println(encryptedLine.toString());
+        System.out.println(resultLine.toString());
     }
 }
