@@ -1,17 +1,52 @@
 package encryptdecrypt;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
 
+    private String mode = "enc";
+    private int key = 0;
+    private String line = "";
+    private String output = "";
+    private String input = "";
+    private boolean inputDefined = false;
+    private String algType;
+
     public static void main(String[] args) {
-        String mode = "enc";
-        int key = 0;
-        String data = "";
-        String output = "";
-        String input = "";
-        boolean inputDefined = false;
+        new Main().run(args);
+    }
+
+    private void run(String[] args) {
+
+        parseArgs(args);
+
+        Algorithm algorithm = AlgorithmFactory.getAlgorithm(algType, line, key);
+        String result = "";
+        if (mode.equalsIgnoreCase("enc")) {
+            result = algorithm.getEncrypted();
+        } else if (mode.equalsIgnoreCase("dec")) {
+            result = algorithm.getDecrypted();
+        } else {
+            result = "";
+        }
+
+        if (output.equals("")) {
+            System.out.println(result);
+        } else {
+            try (FileWriter fileWriter = new FileWriter(output)) {
+                fileWriter.write(result);
+            } catch (IOException e) {
+                System.out.println("File not found: " + output);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void parseArgs(String[] args) {
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-mode":
@@ -24,7 +59,7 @@ public class Main {
                     if (inputDefined) {
                         throw new IllegalArgumentException("Too many input parameters");
                     } else {
-                        data = args[i + 1];
+                        line = args[i + 1];
                         inputDefined = true;
                     }
                     break;
@@ -34,8 +69,9 @@ public class Main {
                     } else {
                         input = args[i + 1];
                         File file = new File(input);
+                        inputDefined = true;
                         try (Scanner scanner = new Scanner(file)) {
-                            data = scanner.nextLine();
+                            line = scanner.nextLine();
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -44,33 +80,11 @@ public class Main {
                 case "-out":
                     output = args[i + 1];
                     break;
-            }
-        }
-        if (output.equals("")) {
-            System.out.println(lineModification(mode, data, key));
-        } else {
-            try (FileWriter fileWriter = new FileWriter(output)) {
-                fileWriter.write(lineModification(mode, data, key));
-            } catch (IOException e) {
-                System.out.println("File not found: " + output);
-                e.printStackTrace();
+                case "-alg":
+                    algType = args[i + 1];
+                    break;
             }
         }
     }
 
-    private static String lineModification(String mode, String data, int key) {
-        StringBuilder resultLine = new StringBuilder();
-        if ("enc".equals(mode)) {
-            for (int i = 0; i < data.length(); i++) {
-                resultLine.append((char) (data.charAt(i) + key));
-            }
-        } else if ("dec".equals(mode)) {
-            for (int i = 0; i < data.length(); i++) {
-                resultLine.append((char) (data.charAt(i) - key));
-            }
-        } else {
-            throw new IllegalArgumentException("Incorrect target operation. Should be \"enc\" or \"dec\".");
-        }
-        return resultLine.toString();
-    }
 }
