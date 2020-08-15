@@ -4,52 +4,37 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        new Main().mainMenu();
+    }
+
+    private void mainMenu() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter the name of the person:");
-        String name = scanner.next();
-        System.out.println("Enter the surname of the person:");
-        String surname = scanner.next();
-        System.out.println("Enter the number:");
-        String number = scanner.next();
-        Contacts singleContact = new Contacts(name, surname, number);
-        System.out.println("A record created!");
-        System.out.println("A Phone Book with a single record created!");
-
-    }
-}
-
-class Contacts {
-    String name;
-    String surname;
-    String phoneNumber;
-
-    public Contacts(String name, String surname, String phoneNumber) {
-        this.name = name;
-        this.surname = surname;
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        PhoneBook phoneBook = new PhoneBook();
+        while (true) {
+            System.out.println("Enter action (add, remove, edit, count, list, exit):");
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "add":
+                    phoneBook.addContact();
+                    break;
+                case "remove":
+                    phoneBook.remove();
+                    break;
+                case "edit":
+                    phoneBook.edit();
+                    break;
+                case "count":
+                    System.out.println("The Phone Book has " + phoneBook.count() + " records.");
+                    break;
+                case "list":
+                    phoneBook.listAll();
+                    break;
+                case "exit":
+                    return;
+                default:
+                    System.out.println("Incorrect input!");
+                    break;
+            }
+        }
     }
 }
