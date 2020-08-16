@@ -1,24 +1,15 @@
 package contacts;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PhoneBook {
 
     private Scanner scanner = new Scanner(System.in);
     private List<Contact> contactsList = new ArrayList<>();
-
-    {
-        contactsList.add(new Contact("Mike", "Iv", "+709823424"));
-        contactsList.add(new Contact("John", "Wu", "+709823424"));
-        contactsList.add(new Contact("Chen", "XO", "+709823424"));
-        contactsList.add(new Contact("Quon", "Li", "+709823424"));
-
-    }
-
-
 
     public void addContact() {
         System.out.println("Enter the name:");
@@ -31,13 +22,17 @@ public class PhoneBook {
 
         contactsList.add(new Contact(name, surname, number));
         System.out.println("The record added.");
-
-
     }
 
     private String processNumber(String number) {
-        // todo: process number using regex
-        return number;
+        String regex = "(?i)([+]?\\(\\w+\\)([- ][\\w]{2,})*?)||([+]?[\\w]+([- ]\\(\\w{2,}\\))?([- ][\\w]{2,}?)*?)";
+        Matcher matcher = Pattern.compile(regex).matcher(number);
+        if (matcher.matches()) {
+            return number;
+        } else {
+            System.out.println("Wrong number format!");
+            return "[no number]";
+        }
     }
 
     public int count() {
