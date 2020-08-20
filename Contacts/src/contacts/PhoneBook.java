@@ -1,37 +1,32 @@
 package contacts;
 
+import contacts.base.Contact;
+import contacts.base.OrganizationContact;
+import contacts.base.PersonContact;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PhoneBook {
 
     private Scanner scanner = new Scanner(System.in);
     private List<Contact> contactsList = new ArrayList<>();
+    ContactHandler personContactHandler = new PersonContactHandler();
+    ContactHandler organizationContactHandler = new OrganizationContactHandler();
 
     public void addContact() {
-        System.out.println("Enter the name:");
-        String name = scanner.nextLine();
-        System.out.println("Enter the surname");
-        String surname = scanner.nextLine();
-        System.out.println("Enter the number:");
-        String number = scanner.nextLine();
-        number = processNumber(number);
-
-        contactsList.add(new Contact(name, surname, number));
-        System.out.println("The record added.");
-    }
-
-    private String processNumber(String number) {
-        String regex = "(?i)([+]?\\(\\w+\\)([- ][\\w]{2,})*?)||([+]?[\\w]+([- ]\\(\\w{2,}\\))?([- ][\\w]{2,}?)*?)";
-        Matcher matcher = Pattern.compile(regex).matcher(number);
-        if (matcher.matches()) {
-            return number;
-        } else {
-            System.out.println("Wrong number format!");
-            return "[no number]";
+        System.out.println("Enter the type (person, organization): ");
+        String type = scanner.nextLine();
+        switch (type) {
+            case "person":
+                Contact person = personContactHandler.createContact();
+                contactsList.add(person);
+                break;
+            case "organization":
+                Contact organization = organizationContactHandler.createContact();
+                contactsList.add(organization);
+                break;
         }
     }
 
@@ -43,9 +38,15 @@ public class PhoneBook {
         int count = 1;
         if (contactsList.size() > 0) {
             for (Contact contact : contactsList) {
-                System.out.printf("%d. %s %s, %s\n",
-                        count, contact.getName(), contact.getSurname(), contact.getPhoneNumber());
-                count++;
+                if (contact.getClass() == PersonContact.class) {
+                    System.out.printf("%d. %s %s\n",
+                            count, contact.getName(), ((PersonContact) contact).getSurname());
+                    count++;
+                } else if (contact.getClass() == OrganizationContact.class) {
+                    System.out.printf("%d. %s\n",
+                            count, contact.getName());
+                    count++;
+                }
             }
         } else {
             System.out.println("No records found.");
@@ -55,30 +56,18 @@ public class PhoneBook {
     public void edit() {
         if (contactsList.size() > 0) {
             listAll();
+            System.out.println("Select a record: ");
             int pos = scanner.nextInt() - 1;
             scanner.nextLine();
-            if (pos >= 0 && pos < contactsList.size()) {
-                System.out.println("Select a field (name, surname, number):");
-                String choice = scanner.nextLine();
-                switch (choice) {
-                    case "name":
-                        System.out.println("Enter name: ");
-                        contactsList.get(pos).setName(scanner.nextLine());
-                        break;
-                    case "surname":
-                        System.out.println("Enter surname: ");
-                        contactsList.get(pos).setSurname(scanner.nextLine());
-                        break;
-                    case "number":
-                        System.out.println("Enter number: ");
-                        String number = scanner.nextLine();
-                        number = processNumber(number);
-                        contactsList.get(pos).setPhoneNumber(number);
-                        break;
+            try {
+                Contact contact = contactsList.get(pos);
+                if (contact.isPerson()) {
+                    personContactHandler.editContact(contact);
+                } else {
+                    organizationContactHandler.editContact(contact);
                 }
-                System.out.println("The record updated!");
-            } else {
-                System.out.println("Cannot edit: no such record!");
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("No such element");
             }
         } else {
             System.out.println("No records to edit!");
@@ -89,6 +78,7 @@ public class PhoneBook {
         if (contactsList.size() > 0) {
             listAll();
             int pos = scanner.nextInt() - 1;
+            scanner.nextLine();
             if (pos >= 0 && pos < contactsList.size()) {
                 contactsList.remove(pos);
                 System.out.println("The record removed!");
@@ -97,6 +87,28 @@ public class PhoneBook {
             }
         } else {
             System.out.println("No records to remove!");
+        }
+    }
+
+    public void getInfo() {
+        if (contactsList.size() > 0) {
+            listAll();
+            System.out.println("Enter index to show info: ");
+            int pos = scanner.nextInt() - 1;
+            scanner.nextLine();
+            try {
+                Contact contact = contactsList.get(pos);
+                if (contact.isPerson()) {
+                    personContactHandler.printInfo(contact);
+                } else {
+                    organizationContactHandler.printInfo(contact);
+                }
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("No such element");
+            }
+
+        } else {
+            System.out.println("No records!");
         }
     }
 }

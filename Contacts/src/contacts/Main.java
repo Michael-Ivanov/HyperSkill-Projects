@@ -11,7 +11,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         PhoneBook phoneBook = new PhoneBook();
         while (true) {
-            System.out.println("Enter action (add, remove, edit, count, list, exit):");
+            System.out.println("Enter action (add, remove, edit, count, info, exit):");
             try {
                 String choice = scanner.nextLine();
                 switch (choice) {
@@ -27,8 +27,8 @@ public class Main {
                     case "count":
                         System.out.println("The Phone Book has " + phoneBook.count() + " records.");
                         break;
-                    case "list":
-                        phoneBook.listAll();
+                    case "info":
+                        phoneBook.getInfo();
                         break;
                     case "exit":
                         return;
@@ -39,6 +39,7 @@ public class Main {
             } catch (Exception e) {
                 System.out.println("Incorrect input: " + e.getClass());
             }
+            System.out.println();
         }
     }
 }
