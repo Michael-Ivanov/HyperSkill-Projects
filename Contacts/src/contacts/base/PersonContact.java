@@ -93,4 +93,9 @@ public class PersonContact extends Contact {
     public String getShortInfo() {
         return name + " " + surname;
     }
+
+    @Override
+    public String getAllFields() {
+        return name + " " + surname + " " + birthDate + " " + gender + " " + number;
+    }
 }

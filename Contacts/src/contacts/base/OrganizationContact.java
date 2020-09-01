@@ -1,14 +1,5 @@
 package contacts.base;
 
-import contacts.base.Contact;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class OrganizationContact extends Contact {
 
     private String address;
@@ -81,5 +72,10 @@ public class OrganizationContact extends Contact {
     @Override
     public String getShortInfo() {
         return name;
+    }
+
+    @Override
+    public String getAllFields() {
+        return name + " " + address + " " + number;
     }
 }

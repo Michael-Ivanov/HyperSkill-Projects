@@ -4,6 +4,9 @@ import contacts.base.Contact;
 import contacts.base.OrganizationContact;
 import contacts.base.PersonContact;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -12,49 +15,54 @@ import java.util.stream.Collectors;
 public class PhoneBook {
 
     private Scanner scanner = new Scanner(System.in);
-    private List<Contact> contactsList = new ArrayList<>();
-    ContactHandler personContactHandler = new PersonContactHandler();
-    ContactHandler organizationContactHandler = new OrganizationContactHandler();
+    private List<Contact> contactsList;
     ContactHandler contactHandler = new ContactHandler();
+    private String pathToSave;
 
-    {
-        contactsList.add(new OrganizationContact("New Car Shop", "Wall st.1", "+0 (123) 456-789-9999"));
-        contactsList.add(new PersonContact("Mike", "Ke", "5-555-555", "2002-1-1", "M"));
-        contactsList.add(new PersonContact("John", "Wu", "5-555-53455", "2032-1-1", "M"));
-        contactsList.add(new OrganizationContact("Decent Pizza Shop", "Las Vegas", "3-355-555"));
-        contactsList.add(new PersonContact("Sara", "Li", "5-555-555", "2012-1-1", "F"));
-        contactsList.add(new OrganizationContact("Pizza Hutt", "Salt Lake City", "1-111-111"));
-        contactsList.add(new OrganizationContact("Central Bank", "Ontario city", "3-121-111"));
+    public PhoneBook(List<Contact> contactsList, String pathToSave) {
+        this.contactsList = contactsList;
+        this.pathToSave = pathToSave;
     }
 
     public void mainMenu() {
         while (true) {
             System.out.print("Enter action (add, list, search, count, exit): ");
-            try {
-                String choice = scanner.nextLine();
-                switch (choice) {
-                    case "add":
-                        contactsList.add(contactHandler.createContact());
-                        break;
-                    case "list":
-                        listAll();
-                        break;
-                    case "search":
-                        search();
-                        break;
-                    case "count":
-                        System.out.println("The Phone Book has " + contactsList.size() + " records.");
-                        break;
-                    case "exit":
-                        return;
-                    default:
-                        System.out.println("Incorrect input!");
-                        break;
-                }
-            } catch (Exception e) {
-                System.out.println("Incorrect input: " + e.getClass());
+
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "add":
+                    contactsList.add(contactHandler.createContact());
+                    saveContactList();
+                    break;
+                case "list":
+                    listAll();
+                    break;
+                case "search":
+                    search();
+                    break;
+                case "count":
+                    System.out.println("The Phone Book has " + contactsList.size() + " records.");
+                    break;
+                case "exit":
+                    saveContactList();
+                    System.exit(0);
+                default:
+                    System.out.println("Incorrect input!");
+                    break;
             }
             System.out.println();
+        }
+    }
+
+    private void saveContactList() {
+        if (pathToSave != null) {
+            try (FileOutputStream fos = new FileOutputStream(pathToSave);
+                 BufferedOutputStream bos = new BufferedOutputStream(fos);
+                 ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+                oos.writeObject(contactsList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -62,7 +70,7 @@ public class PhoneBook {
         System.out.print("Enter search query: ");
         String search = scanner.nextLine().toLowerCase();
         List<Contact> searchResult = contactsList.stream()
-                .filter(contact -> contact.getShortInfo().toLowerCase().contains(search))
+                .filter(contact -> contact.getAllFields().toLowerCase().contains(search))
                 .collect(Collectors.toList());
         String ending = searchResult.size() == 1 ? "result" : "results";
         System.out.println("Found " + searchResult.size() + " " + ending + ": ");
@@ -131,9 +139,11 @@ public class PhoneBook {
             switch (scanner.nextLine()) {
                 case "edit":
                     contactHandler.editContact(contact);
+                    saveContactList();
                     break;
                 case "delete":
                     contactsList.remove(contact);
+                    saveContactList();
                     break;
                 case "menu":
                     System.out.println();
@@ -144,22 +154,4 @@ public class PhoneBook {
             }
         }
     }
-
-
-//    public void remove() {
-//        if (contactsList.size() > 0) {
-//            listAll();
-//            int pos = scanner.nextInt() - 1;
-//            scanner.nextLine();
-//            if (pos >= 0 && pos < contactsList.size()) {
-//                contactsList.remove(pos);
-//                System.out.println("The record removed!");
-//            } else {
-//                System.out.println("Cannot remove: no such record!");
-//            }
-//        } else {
-//            System.out.println("No records to remove!");
-//        }
-//    }
-
 }

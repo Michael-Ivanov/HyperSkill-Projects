@@ -4,7 +4,6 @@ import contacts.base.Contact;
 import contacts.base.OrganizationContact;
 import contacts.base.PersonContact;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -25,7 +24,7 @@ public class ContactHandler {
                 contact = new PersonContact();
                 break;
             case "organization":
-                contact  = new OrganizationContact();
+                contact = new OrganizationContact();
                 break;
             default:
                 System.out.println("Incorrect input.");
@@ -53,7 +52,7 @@ public class ContactHandler {
         return contact;
     }
 
-    public void editContact(Contact contact){
+    public void editContact(Contact contact) {
         Scanner scanner = new Scanner(System.in);
         String str = Arrays.toString(contact.getEditableFields());
         str = str.replace("[", "(");
@@ -69,9 +68,6 @@ public class ContactHandler {
         System.out.println();
     }
 
-    public void printInfo(Contact contact){
-
-    };
 
     public String processNumber(String number) {
         String regex = "(?i)([+]?\\(\\w+\\)([- ][\\w]{2,})*?)||([+]?[\\w]+([- ]\\(\\w{2,}\\))?([- ][\\w]{2,}?)*?)";
@@ -103,8 +99,6 @@ public class ContactHandler {
             return "[no data]";
         }
     }
-
-
 
 
 }
