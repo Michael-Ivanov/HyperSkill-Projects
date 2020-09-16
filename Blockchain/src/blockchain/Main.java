@@ -1,27 +1,23 @@
 package blockchain;
 
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter how many zeros the hash must start with: ");
-        int zeroes = scanner.nextInt();
+    public static void main(String[] args) throws InterruptedException {
         LinkedList<Block> blockChain = new LinkedList<>();
-        BlockchainService blockchainService = new BlockchainService(blockChain, zeroes);
+        BlockchainService blockchainService = new BlockchainService(blockChain, 0);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
         for (int i = 0; i < 5; i++) {
-            long timeStart = System.currentTimeMillis();
-            Block block = blockchainService.generateNewBlock();
-            long timeStop = System.currentTimeMillis();
-            blockChain.add(block);
-            System.out.print(block.toString());
-            System.out.println("Block was generating for " +
-                    (timeStop - timeStart) / 1000 + " seconds\n");
+            executor.submit(() -> {
+                Block newBlock = blockchainService.generateNewBlock();
+                blockChain.add(newBlock);
+                System.out.println(newBlock.toString());
+            });
+            Thread.sleep(1000);
         }
-        /*for (int i = 0; i < 5; i++) {
-            System.out.println(blockChain.get(i).toString());
-        }*/
+        executor.shutdown();
+
     }
 }

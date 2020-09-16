@@ -1,14 +1,13 @@
 package blockchain;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.LinkedList;
 import java.util.Random;
 
 public class BlockchainService {
 
-    private LinkedList<Block> chain;
-    private int zeroes;
+    private volatile LinkedList<Block> chain;
+    private volatile int zeroes;
+    private volatile int reqId;
 
     public BlockchainService(LinkedList<Block> chain, int zeroes) {
         this.chain = chain;
@@ -16,30 +15,44 @@ public class BlockchainService {
     }
 
     public Block generateNewBlock() {
-        Block newBlock = null;
+        Block newBlock;
         long magicNum;
-        boolean search = true;
-
-        String prevBlockHash;
+        String prevBlockHash = "0";
         int id;
-        if (chain.size() == 0) {
-            id = 1;
-            prevBlockHash = "0";
-        } else {
+        long timeStart = System.currentTimeMillis();
+
+        while (true) {
+
+            if (!chain.isEmpty()) {
+                prevBlockHash = chain.get(chain.size() - 1).getHash();
+            }
             id = chain.size() + 1;
-            prevBlockHash = chain.get(chain.size() - 1).getHash();
-        }
-        while (search) {
             magicNum = new Random().nextLong();
             newBlock = new Block(id, "some data", prevBlockHash, magicNum);
-            if (newBlock.getHash().startsWith(getZeroes(zeroes))) {
-                search = false;
+            synchronized (this) {
+                if (newBlock.getHash().startsWith(getZeroesString(zeroes))) {
+                    long timeStop = System.currentTimeMillis();
+                    long timeToCreate = timeStop - timeStart;
+                    newBlock.setTimeToCreate(timeToCreate);
+
+                    if ((timeToCreate / 1000) < 10) {
+                        zeroes += 1;
+                        newBlock.setnState("N was increased to " + zeroes);
+                    } else if (timeToCreate / 1000 > 60) {
+                        zeroes = zeroes > 0 ? zeroes - 1 : zeroes;
+                        newBlock.setnState("N was decreased by 1");
+                    } else {
+                        newBlock.setnState("N stays the same");
+                    }
+
+                    return newBlock;
+                }
             }
+
         }
-        return newBlock;
     }
 
-    private String getZeroes(int zeroes) {
+    private String getZeroesString(int zeroes) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < zeroes; i++) {
             builder.append("0");
